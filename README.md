@@ -1,6 +1,6 @@
-# Packer
+# Bug Menace: A Bug Bounty Packer Build
 
-This directory contains the necessary configurations to build an AMI pre-baked with Boucan.
+This project contains the packer build (targeting AWS) for a Bug Bounty enumeration and attack server. It's basically just ubuntu + some osint tools.
 
 **Note: running the build will destroy any other AMIs that have the same name. You can increment the "version" variable to create duplicates.**
 
@@ -15,3 +15,31 @@ Copy `env.sh.example` to `env.sh` and set the appropriate variables. Make sure y
 ```
 $ packer build -on-error=ask config.json
 ```
+
+### Installed Software
+
+Most installed tools can be found in the /opt folder. Some tools include:
+
+- gobuster
+- amass
+- massdns
+- aquatone
+- eyewitness
+- subfinder
+- assetfinder
+- zaproxy
+- dirsearch
+- nikto
+- dirb
+- arjun
+- xsstrike
+- testssl
+- recon-ng
+
+### Discover Scripts
+
+Discover scripts are pulled onto the box but not setup as running "update.sh" will delete /opt/recon-ng as well as do other things. If you decide to use discover scripts (/opt/discover), you will want to understand how to reconfigure (and redowload) recon-ng manually as the ubuntu version is too old.
+
+### Seclists
+
+Seclists is on the box under /opt/wordlists but is zipped and needs to be unzipped to be used.
