@@ -13,10 +13,10 @@ export DEBIAN_FRONTEND=noninteractive;
 
 echo "Starting Custom installs";
 
-echo "Installing basic dependencies and packages: git golang python3-dev python3-pip python-pip unzip golang p7zip-full vim masscan mlocate tmux masscan nikto snapd python3-fuzzywuzzy python-requests python3-requests python-whois python3-whois whois python-texttable python3-texttable ";
+echo "Installing basic dependencies and packages: git golang python3-dev python3-pip python-pip unzip golang p7zip-full vim masscan mlocate tmux masscan nikto snapd python3-fuzzywuzzy python-fuzzywuzzy python-requests python3-requests python3-urllib3 python-urllib3 python-whois python3-whois  python-texttable python3-texttable whois nmap";
 
 # Put apps here to be installed
-sudo apt-get install -y git golang python3-dev python3-pip python-pip unzip golang p7zip-full vim masscan mlocate tmux masscan nikto snapd python3-fuzzywuzzy python-fuzzywuzzy python-requests python3-requests python3-urllib3 python-urllib3 python-whois python3-whois  python-texttable python3-texttable whois;
+sudo apt-get install -y git golang python3-dev python3-pip python-pip unzip golang p7zip-full vim masscan mlocate tmux masscan nikto snapd python3-fuzzywuzzy python-fuzzywuzzy python-requests python3-requests python3-urllib3 python-urllib3 python-whois python3-whois  python-texttable python3-texttable whois nmap;
 
 # pro gamer move, for xsstrike
 sudo -H pip3 install tld
@@ -201,9 +201,6 @@ if [ ! -d /opt/discover ]; then
     # sudo rm impacket*
     # ## Discover Scripts Install
     # sudo -H DEBIAN_FRONTEND=noninteractive ./update.sh || echo "Discover scripts had issues. Continueing"
-    echo "Pulling the recon-ng marketplace"
-    recon-ng -r /opt/discover/resource/recon-ng-modules-install.rc || true
-    sudo -H recon-ng -r /opt/discover/resource/recon-ng-modules-install.rc || true
 fi
 
 # 
