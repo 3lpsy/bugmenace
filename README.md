@@ -2,9 +2,15 @@
 
 This project contains the packer build (targeting AWS) for a Bug Bounty enumeration and attack server. It's basically just ubuntu + some osint tools.
 
-**Note: running the build will destroy any other AMIs that have the same name. You can increment the "version" variable to create duplicates.**
+## Purpose
+
+For Bug Hunting, you may wish to have a templated VM in the cloud for each project. Installing tools can take time and may lead to multiple VMs with different states. To avoid this, you can use Hashicorp's Packer to build a template which can be spun up on demand. This project contains a Packer Build for AWS.
+
+[Do you Want to Know More](!./im-doing-my-part.png)
 
 ## Building the AMI
+
+**Note: running the build will destroy any other AMIs that have the same name. You can increment the "version" variable to create duplicates.**
 
 ### Setting the Environment Variables
 
@@ -57,3 +63,9 @@ Discover scripts are pulled onto the box but not setup as running "update.sh" wi
 ### Seclists
 
 Seclists is on the box under /opt/wordlists but is zipped and needs to be unzipped to be used.
+
+## Other Uses
+
+Don't want to target AWS? Open an Issue and/or PR a build for your favorite hosting provider.
+
+Hate the cloud? Just steel the provision.install.sh script (though you may need the provision.sh script as well).
