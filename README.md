@@ -20,23 +20,37 @@ $ packer build -on-error=ask config.json
 
 Most installed tools can be found in the /opt folder. Some tools include:
 
-- gobuster
-- amass
-- massdns
-- aquatone
-- eyewitness
-- subfinder
-- assetfinder
-- zaproxy
-- dirsearch
-- nikto
-- dirb
-- arjun
-- xsstrike
-- testssl
-- recon-ng
+- Zaproxy
+- Jason Haddix's all.txt
+- SecLists (not unzipped)
+- Gobuster
+- Amass
+- MassDNS
+- EyeWitness
+- Aquatone
+- Dirsearch
+- GitRob
+- SubFinder
+- Arjun
+- XSStrike
+- WebScreenshot
+- Testssl
+- Cloudflare
+- LazyRecon
+- Knock
+- lazys3
+- bucketeers
+- wpscan (not fully installed)
+- whatweb
+- theHarvester
+- Discover (not fully installed)
+- Recon-ng
+- Goprox
+- Nishang
+- misc
+- other random things (sqlmap, dirb, nikto, etc)
 
-### Discover Scripts
+### Leebaird's Discover Scripts
 
 Discover scripts are pulled onto the box but not setup as running "update.sh" will delete /opt/recon-ng as well as do other things. If you decide to use discover scripts (/opt/discover), you will want to understand how to reconfigure (and redowload) recon-ng manually as the ubuntu version is too old.
 
