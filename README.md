@@ -69,3 +69,45 @@ Seclists is on the box under /opt/wordlists but is zipped and needs to be unzipp
 Don't want to target AWS? Open an Issue and/or PR a build for your favorite hosting provider.
 
 Hate the cloud? Just steel the provision.install.sh script (though you may need the provision.sh script as well).
+
+## Are you also using Boucan or just want some Terraform Code?
+
+You can add the following to the boucan-deploy/terraform directory to add a second vm (bugmenace) to your deployment. This is mostly just for me to reference later.
+
+```
+variable "bugmenace_ami" {
+  default = "THE_AMI_CREATED_BY_PACKER"
+}
+
+resource "aws_instance" "bugmenace" {
+  ami                         = var.bugmenace_ami
+  instance_type               = "t2.medium"
+  subnet_id                   = aws_subnet.main.id
+  vpc_security_group_ids      = [aws_security_group.main.id]
+  key_name                    = aws_key_pair.main.key_name
+  associate_public_ip_address = true
+  root_block_device {
+    volume_size = 16
+  }
+  tags = {
+    Name = "bugmenace-server"
+  }
+}
+
+resource "aws_route53_record" "a_menace" {
+  zone_id = data.aws_route53_zone.main.zone_id
+  name    = "menace.${var.dns_root}"
+  type    = "A"
+  ttl     = "5"
+  records = [aws_instance.bugmenace.public_ip]
+}
+
+output "bugmenace_domain" {
+  value = "menace.${var.dns_root}"
+}
+
+output "bugmenace_ssh_command" {
+  value = "ssh -i data/key.pem ubuntu@${aws_instance.bugmenace.public_ip}"
+}
+
+```
