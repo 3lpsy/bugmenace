@@ -54,6 +54,15 @@ Most installed tools can be found in the /opt folder. Some tools include:
 - Goprox
 - Nishang
 - misc
+- assetfinder
+- meg
+- gf
+- gron
+- waybackurls
+- httprobe
+- qsreplace
+- concurl
+- unfurl
 - other random things (sqlmap, dirb, nikto, etc)
 
 ### Leebaird's Discover Scripts
