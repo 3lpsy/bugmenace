@@ -63,7 +63,15 @@ Most installed tools can be found in the /opt folder. Some tools include:
 - qsreplace
 - concurl
 - unfurl
+- ssrfmap
+- fresh.py
+- ssrf-sheriff
+- ffuf
 - other random things (sqlmap, dirb, nikto, etc)
+
+### Wireguard
+
+A Wireguard VPN will also be installed that listens on port 36283. Comment out the "provision.wireguard.sh" line in config.json if this is unintersting to you.
 
 ### Leebaird's Discover Scripts
 

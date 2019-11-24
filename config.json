@@ -54,6 +54,8 @@
         "sudo bash /tmp/provisioners/provision.docker.sh",
         "sudo bash /tmp/provisioners/provision.docker-compose.sh",
         "sudo bash /tmp/provisioners/provision.install.sh",
+        "sudo bash /tmp/provisioners/provision.wireguard.sh",
+
         "sudo rm -rf /tmp/provisioners",
         "sudo rm -rf /tmp/*",
         "sudo apt-get -y autoremove --purge",

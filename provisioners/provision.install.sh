@@ -8,7 +8,7 @@ SUDOER="ubuntu"
 TOOL_DIR=${TOOL_DIR:-/opt}
 SECLISTS_VER="2019.4"
 GOBUSTER_VER="v3.0.1"
-AMASS_VER="v3.2.3"
+AMASS_VER="v3.3.2"
 AMASS_NAME="amass_${AMASS_VER}_linux_amd64"
 AQUATONE_VER="1.7.0"
 
@@ -22,6 +22,29 @@ echo "Starting Custom installs";
 echo "Installing some programs"
 sudo apt-get install -y git golang unzip p7zip-full vim masscan mlocate tmux masscan nikto snapd whois nmap jq wfuzz sqlmap cewl awscli;
 
+# manually add 1.13
+sudo wget https://dl.google.com/go/go1.13.3.linux-amd64.tar.gz -O /tmp/golang.tar.gz;
+cd /tmp/;
+sudo tar -xvzf /tmp/golang.tar.gz
+sudo mv go /usr/local/go;
+
+export GOROOT=/usr/local/go
+export GOPATH=/root/.go; 
+export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+
+GO="GOROOT=/usr/local/go GOPATH=/root/.go PATH=$GOPATH/bin:$GOROOT/bin:$PATH /usr/local/go/bin/go"
+
+echo 'export GOROOT=/usr/local/go' | sudo tee -a /root/.bashrc;
+echo 'export GOPATH=/root/.go' | sudo tee -a /root/.bashrc;
+echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' | sudo tee -a /root/.bashrc;
+
+if [[ -d /home/$SUDOER ]]; then 
+    echo 'export GOROOT=/usr/local/go' | sudo tee -a /home/$SUDOER/.bashrc;
+    echo "export GOPATH=/home/${SUDOER}/.go" | sudo tee -a /home/$SUDOER/.bashrc;
+    echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' | sudo tee -a /home/$SUDOER/.bashrc;
+    sudo chown  ${SUDOER}:${SUDOER} /home/${SUDOER}/.bashrc
+fi
+
 echo "Installing some python stuff and ruby stuff"
 
 sudo apt-get install -y python3.7 python3.7-venv python3-dev python3-pip python-pip python3-venv python3-fuzzywuzzy python-fuzzywuzzy python-requests python3-requests python3-urllib3 python-urllib3 python-whois python3-whois python-texttable python3-texttable python-dnspython python3-dnspython ruby-dev;
@@ -31,7 +54,7 @@ sudo -H pip3 install tld
 
 # Eyewitness + Aquatone Dependencies
 echo "Installing: eyewitness + Aquatone Dependencies";
-sudo apt-get install -y firefox chromium-browser xvfb;
+sudo apt-get install -y firefox chromium-browser xvfb || sudo apt-get install -y firefox-esr chromium xvfb;
 
 ## Discover Scripts Dependencies
 echo "Installing Discover Scripts dependencies";
@@ -47,6 +70,9 @@ if [ ! -d ${TOOL_DIR}/wordlists ]; then
     echo "Setting up: all.txt";
     sudo mkdir ${TOOL_DIR}/wordlists;
     sudo wget https://gist.github.com/jhaddix/f64c97d0863a78454e44c2f7119c2a6a/raw/96f4e51d96b2203f19f6381c8c545b278eaa0837/all.txt -O ${TOOL_DIR}/wordlists/all.txt;
+
+    sudo git clone https://github.com/minimaxir/big-list-of-naughty-strings.git ${TOOL_DIR}/wordlists/naughtystrings
+
     # sudo rm -rf /tmp/seclists || true;
     # sudo mkdir /tmp/seclists;
     sudo wget https://github.com/danielmiessler/SecLists/archive/$SECLISTS_VER.zip -O ${TOOL_DIR}/wordlists/seclists.zip;
@@ -55,12 +81,17 @@ if [ ! -d ${TOOL_DIR}/wordlists ]; then
     # sudo rm -rf /tmp/seclists;
 fi
 
+if [ ! -d ${TOOL_DIR}/payloads ]; then 
+    sudo mkdir ${TOOL_DIR}/payloads;
+    sudo git clone https://github.com/swisskyrepo/PayloadsAllTheThings.git ${TOOL_DIR}/payloads/PayloadsAllTheThings;
+fi 
+
 ## Gobuster Source
 if [ ! -d ${TOOL_DIR}/gobuster ]; then 
     echo "Setting up: Gobuster";
     sudo git clone https://github.com/OJ/gobuster.git ${TOOL_DIR}/gobuster;
     ## Amass Binary
-    sudo rm -rf /tmp/gobustesudo apt-get install ruby-devr || true; 
+    sudo rm -rf /tmp/gobuster || true; 
     sudo mkdir /tmp/gobuster;
     sudo wget https://github.com/OJ/gobuster/releases/download/$GOBUSTER_VER/gobuster-linux-amd64.7z -O /tmp/gobuster/gobuster.7z;
     cd /tmp/gobuster;
@@ -69,6 +100,17 @@ if [ ! -d ${TOOL_DIR}/gobuster ]; then
     cd -;
     sudo chmod +x /usr/local/bin/gobuster;
     sudo rm -rf /tmp/gobuster;
+fi
+
+## Ffuf Source
+if [ ! -d ${TOOL_DIR}/ffuf ]; then 
+    echo "Setting up: ffuf";
+    sudo git clone https://github.com/ffuf/ffuf.git ${TOOL_DIR}/ffuf;
+    cd ${TOOL_DIR}/ffuf;
+    sudo $GO get github.com/ffuf/ffuf;
+    sudo $GO build
+    sudo chmod +x ${TOOL_DIR}/ffuf/ffuf;
+    sudo ln -s ${TOOL_DIR}/ffuf/ffuf /usr/local/bin/ffuf
 fi
 
 ## Amass Source
@@ -147,8 +189,8 @@ if [ ! -d ${TOOL_DIR}/subfinder ]; then
     sudo git clone https://github.com/subfinder/subfinder.git ${TOOL_DIR}/subfinder;
     cd ${TOOL_DIR}/subfinder;
     ## SubFinder Binary (Releases too old)
-    sudo go get github.com/subfinder/subfinder
-    sudo go build;
+    sudo $GO get github.com/subfinder/subfinder
+    sudo $GO build;
     sudo chmod +x subfinder;
     sudo ln -s ${TOOL_DIR}/subfinder/subfinder /usr/local/bin/subfinder;
     cd -;
@@ -161,8 +203,8 @@ function tomnomnom_install() {
         echo "Setting up: $1"
         sudo git clone https://github.com/tomnomnom/$tool.git ${TOOL_DIR}/$tool;
         cd ${TOOL_DIR}/$tool;
-        sudo go get -u github.com/tomnomnom/$tool;
-        sudo go build;
+        sudo $GO get -u github.com/tomnomnom/$tool;
+        sudo $GO build;
         sudo chmod +x $tool;
         sudo ln -s ${TOOL_DIR}/$tool/$tool /usr/local/bin/$tool;
         cd -;
@@ -175,9 +217,11 @@ tomnomnom_install gf
 echo "source ${TOOL_DIR}/gf/gf-completion.bash" >> /root/.bashrc
 echo "source ${TOOL_DIR}/gf/gf-completion.bash" >> /home/$SUDOER/.bashrc
 sudo cp -R ${TOOL_DIR}/gf/examples /root/.gf;
-sudo cp -R ${TOOL_DIR}/gf/examples /home/$SUDOER/.gf;
-sudo chown -R ${SUDOER}:${SUDOER} /home/$SUDOER/.gf;
 
+if [[ -d /home/${SUDOER} ]]; then 
+    sudo cp -R ${TOOL_DIR}/gf/examples /home/$SUDOER/.gf;
+    sudo chown -R ${SUDOER}:${SUDOER} /home/$SUDOER/.gf;
+fi
 tomnomnom_install gron
 tomnomnom_install waybackurls
 tomnomnom_install httprobe
@@ -292,8 +336,10 @@ fi
 # Discover Scripts are difficult, maybe another time
 if [ ! -d /opt/discover ]; then 
     sudo mkdir /root/.recon-ng
-    sudo mkdir /home/$SUDOER/.recon-ng
-    sudo chown ${SUDOER}:${SUDOER} /home/$SUDOER/.recon-ng
+    if [[ -d /home/${SUDOER} ]]; then 
+        sudo mkdir /home/$SUDOER/.recon-ng
+        sudo chown ${SUDOER}:${SUDOER} /home/$SUDOER/.recon-ng
+    fi
     echo "Setting up: Discover Scripts";
     sudo git clone https://github.com/leebaird/discover.git /opt/discover;
     echo "Not installing discover scripts"
@@ -328,6 +374,40 @@ if [ ! -d ${TOOL_DIR}/goprox ]; then
     sudo git clone https://github.com/3lpsy/goprox.git ${TOOL_DIR}/goprox;
 fi
 
+# Teknogeek Stuff
+if [ ! -d ${TOOL_DIR}/ssrf-sheriff ]; then 
+    echo "Setting up: ssrf-sheriff";
+    sudo git clone https://github.com/teknogeek/ssrf-sheriff.git ${TOOL_DIR}/ssrf-sheriff;
+    cd ${TOOL_DIR}/ssrf-sheriff;
+    sudo $GO get github.com/teknogeek/ssrf-sheriff
+    sudo cp config/base.example.yaml config/base.yaml
+    sudo $GO build
+    sudo ln -s ${TOOL_DIR}/ssrf-sheriff/ssrf-sheriff /usr/local/bin/ssrf-sheriff
+fi
+
+if [ ! -d ${TOOL_DIR}/fresh.py ]; then 
+    echo "Setting up: fresh.py";
+    sudo git clone https://github.com/teknogeek/fresh.py.git ${TOOL_DIR}/fresh.py;
+    cd ${TOOL_DIR}/fresh.py;
+    sudo -H pip3 install -r ${TOOL_DIR}/fresh.py/requirements.txt
+
+    echo '#!/bin/bash' | sudo tee /usr/local/bin/fresh.py
+    echo "python3 ${TOOL_DIR}/fresh.py/fresh.py --clean /opt/fresh.py/clean_regex.txt \$@" | sudo tee -a /usr/local/bin/fresh.py
+    sudo chmod +x /usr/local/bin/fresh.py
+    # sudo ln -s ${TOOL_DIR}/fresh.py/fresh.py /usr/local/bin/fresh.py
+fi
+
+
+if [ ! -d ${TOOL_DIR}/ssrfmap ]; then 
+    sudo git clone https://github.com/swisskyrepo/SSRFmap.git ${TOOL_DIR}/ssrfmap;
+    cd ${TOOL_DIR}/ssrfmap;
+    sudo -H pip3 install -r ${TOOL_DIR}/ssrfmap/requirements.txt;
+    sudo chmod +x ${TOOL_DIR}/ssrfmap/ssrfmap.py;
+    echo '#!/bin/bash' | sudo tee /usr/local/bin/ssrfmap.py;
+    echo "python3 ${TOOL_DIR}/ssrfmap/ssrfmap.py" | sudo tee -a /usr/local/bin/ssrfmap.py;
+    sudo chmod +x /usr/local/bin/ssrfmap.py;
+fi 
+
 ## Pentesting
 if [ ! -d ${TOOL_DIR}/nishang ]; then 
     echo "Setting up: Nishang";
@@ -343,11 +423,10 @@ if [ ! -d ${TOOL_DIR}/misc ]; then
 fi
 
 
+echo 'export PS1="\[$(tput bold)\]\[\033[38;5;88m\]@\[$(tput sgr0)\]\[\033[38;5;196m\]\h\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput bold)\]\[$(tput sgr0)\]\[\033[38;5;105m\]\u\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput bold)\]\[$(tput sgr0)\]\[\033[38;5;45m\]\W\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput bold)\]\[$(tput sgr0)\]\[\033[38;5;13m\]>\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]"' | sudo tee -a /root/.bashrc || echo "Issue with: setting ps1"
 
-sudo chown -R ${SUDOER}:${SUDOER} ${TOOL_DIR}/*
-
-
-echo 'export PS1="\[$(tput bold)\]\[\033[38;5;88m\]@\[$(tput sgr0)\]\[\033[38;5;196m\]\h\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput bold)\]\[$(tput sgr0)\]\[\033[38;5;105m\]\u\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput bold)\]\[$(tput sgr0)\]\[\033[38;5;45m\]\W\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput bold)\]\[$(tput sgr0)\]\[\033[38;5;13m\]>\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]"' | sudo tee -a /home/$SUDOER/.bashrc || echo "Issue with: setting ps1"
-
-# sudo chown ${SUDOER}:${SUDOER} /home/$SUDOER/.profile;
-sudo chown ${SUDOER}:${SUDOER} /home/$SUDOER/.bashrc;
+if [[ -d /home/${SUDOER} ]]; then 
+    sudo chown -R ${SUDOER}:${SUDOER} ${TOOL_DIR}/*
+    echo 'export PS1="\[$(tput bold)\]\[\033[38;5;88m\]@\[$(tput sgr0)\]\[\033[38;5;196m\]\h\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput bold)\]\[$(tput sgr0)\]\[\033[38;5;105m\]\u\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput bold)\]\[$(tput sgr0)\]\[\033[38;5;45m\]\W\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput bold)\]\[$(tput sgr0)\]\[\033[38;5;13m\]>\[$(tput sgr0)\]\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]"' | sudo tee -a /home/$SUDOER/.bashrc || echo "Issue with: setting ps1"
+    sudo chown ${SUDOER}:${SUDOER} /home/$SUDOER/.bashrc;
+fi
