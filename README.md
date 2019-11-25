@@ -10,6 +10,8 @@ For Bug Hunting, you may wish to have a templated VM in the cloud for each proje
 
 I actually run a Kali VM that connects to the Bugmenace server via Wireguard. The provision.install.sh script should work for both operating systems such that you will have similar tools on both your VM (client) and BugMenace (server). You will need to copy the /etc/wireguard/peerprivkey from BugMenace if you wish to connect the local instance to the Wireguard service.
 
+You can find the version to build a local kali under "kali-bounty" VM here: (VM-Builds)[https://github.com/3lpsy/vm-builds/]. Right now to only targets libvirt/qemu but PRs are welcome. The primary provisioning script is nearly identical but sometimes lags behind this one.
+
 ![Do you Want to Know More](./im-doing-my-part.png)
 
 ## Building the AMI
