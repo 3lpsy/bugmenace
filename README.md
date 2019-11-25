@@ -97,4 +97,4 @@ Hate the cloud? Just steel the provision.install.sh script (though you may need 
 
 ## Are you also using Boucan or just want some Terraform Code?
 
-Boucan now has the option to deploy a Bugmenace server alongside the typically boucan infrastructure. The relevant terraform code can be found here: (Boucan Deploy: bugmenace.tf)[https://github.com/3lpsy/boucan-deploy/blob/master/terraform/bugmenace.tf.example]
+Boucan now has the option to deploy a Bugmenace server alongside the typically boucan infrastructure. The relevant terraform code can be found here: [Boucan Deploy: bugmenace.tf](https://github.com/3lpsy/boucan-deploy/blob/master/terraform/bugmenace.tf.example)
