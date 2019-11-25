@@ -73,6 +73,8 @@ Most installed tools can be found in the /opt folder. Some tools include:
 - fresh.py
 - ssrf-sheriff
 - ffuf
+- interlace
+- gitleaks
 - other random things (sqlmap, dirb, nikto, etc)
 
 ### Wireguard
