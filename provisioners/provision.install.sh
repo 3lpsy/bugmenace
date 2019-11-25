@@ -408,6 +408,19 @@ if [ ! -d ${TOOL_DIR}/ssrfmap ]; then
     sudo chmod +x /usr/local/bin/ssrfmap.py;
 fi 
 
+if [ ! -d ${TOOL_DIR}/gitleaks ]; then 
+    sudo git clone https://github.com/zricethezav/gitleaks.git ${TOOL_DIR}/gitleaks;
+    sudo $GO get -u github.com/zricethezav/gitleaks;
+    sudo $GO build
+    sudo ln -s ${TOOL_DIR}/gitleaks/gitleaks /usr/local/bin/gitleaks;
+fi 
+
+if [ ! -d ${TOOL_DIR}/interlace ]; then 
+    sudo git clone https://github.com/codingo/Interlace.git ${TOOL_DIR}/interlace;
+    cd ${TOOL_DIR}/interlace;
+    sudo python3 setup.py install
+fi 
+
 ## Pentesting
 if [ ! -d ${TOOL_DIR}/nishang ]; then 
     echo "Setting up: Nishang";
