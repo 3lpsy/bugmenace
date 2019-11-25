@@ -6,11 +6,11 @@ This project contains the packer build (targeting AWS) for a Bug Bounty enumerat
 
 For Bug Hunting, you may wish to have a templated VM in the cloud for each project. Installing tools can take time and may lead to multiple VMs with different states. To avoid this, you can use Hashicorp's Packer to build a template which can be spun up on demand. This project contains a Packer Build for AWS.
 
-## In a VM
+### In a VM
 
 I actually run a Kali VM that connects to the Bugmenace server via Wireguard. The provision.install.sh script should work for both operating systems such that you will have similar tools on both your VM (client) and BugMenace (server). You will need to copy the /etc/wireguard/peerprivkey from BugMenace if you wish to connect the local instance to the Wireguard service. You also may want to regenerate the wireguard key pairs.
 
-You can find the version to build a local kali under "kali-bounty" VM here: (VM-Builds)[https://github.com/3lpsy/vm-builds/]. Right now to only targets libvirt/qemu but PRs are welcome. The primary provisioning script is nearly identical but sometimes lags behind this one. You do not need the local kali version to utlize the Bugmenace.
+You can find the version to build a local kali under "kali-bounty" VM here: (VM-Builds)[https://github.com/3lpsy/vm-builds/]. Right now to only targets libvirt/qemu but PRs are welcome. The primary provisioning script is nearly identical but sometimes lags behind this one. You do not need the local kali version to utlize the Bugmenace and can ignore this if you want to just test from the Bugmenace instance in the cloud.
 
 ![Do you Want to Know More](./im-doing-my-part.png)
 
