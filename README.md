@@ -6,6 +6,10 @@ This project contains the packer build (targeting AWS) for a Bug Bounty enumerat
 
 For Bug Hunting, you may wish to have a templated VM in the cloud for each project. Installing tools can take time and may lead to multiple VMs with different states. To avoid this, you can use Hashicorp's Packer to build a template which can be spun up on demand. This project contains a Packer Build for AWS.
 
+## In a VM
+
+I actually run a Kali VM that connects to the Bugmenace server. The provision.install.sh script should work for both operating systems such that you will have similar tools on both your VM (client) and BugMenace (server). You will need to copy the /etc/wireguard/peerprivkey from BugMenace if you wish to connect the local instance to the Wireguard service.
+
 ![Do you Want to Know More](./im-doing-my-part.png)
 
 ## Building the AMI
