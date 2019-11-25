@@ -83,7 +83,7 @@ A Wireguard VPN will also be installed that listens on port 36283. Comment out t
 
 ### Leebaird's Discover Scripts
 
-Discover scripts are pulled onto the box but not setup as running "update.sh" will delete /opt/recon-ng as well as do other things. If you decide to use discover scripts (/opt/discover), you will want to understand how to reconfigure (and redowload) recon-ng manually as the ubuntu version is too old.
+Discover scripts are pulled onto the box but not setup as running "update.sh" will delete /opt/recon-ng as well as do other things. If you decide to use discover scripts (/opt/discover), you will want to understand how to reconfigure (and redownload) recon-ng manually as the ubuntu version is too old.
 
 ### Seclists
 
