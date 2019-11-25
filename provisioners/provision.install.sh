@@ -20,30 +20,44 @@ echo "Starting Custom installs";
 # Put apps here to be installed
 
 echo "Installing some programs"
-sudo apt-get install -y git golang unzip p7zip-full vim masscan mlocate tmux masscan nikto snapd whois nmap jq wfuzz sqlmap cewl awscli;
+sudo apt-get install -y git unzip p7zip-full vim masscan mlocate tmux masscan nikto whois nmap jq wfuzz sqlmap cewl awscli dnsutils;
 
-# manually add 1.13
-sudo wget https://dl.google.com/go/go1.13.3.linux-amd64.tar.gz -O /tmp/golang.tar.gz;
-cd /tmp/;
-sudo tar -xvzf /tmp/golang.tar.gz
-sudo mv go /usr/local/go;
 
-export GOROOT=/usr/local/go
-export GOPATH=/root/.go; 
-export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+if [  -n "$(uname -a | grep -i ubuntu)" ]; then 
 
-GO="GOROOT=/usr/local/go GOPATH=/root/.go PATH=$GOPATH/bin:$GOROOT/bin:$PATH /usr/local/go/bin/go"
+    echo "Performing Ubuntu Specific setup..."
+    sudo apt-get install -y snapd
+        # manually add 1.13
+    sudo wget https://dl.google.com/go/go1.13.3.linux-amd64.tar.gz -O /tmp/golang.tar.gz;
+    cd /tmp/;
+    sudo tar -xvzf /tmp/golang.tar.gz
+    sudo mv go /usr/local/go;
+    export GOROOT=/usr/local/go
+    export GOPATH=/root/.go; 
+    export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+    GO="GOROOT=/usr/local/go GOPATH=/root/.go PATH=$GOPATH/bin:$GOROOT/bin:$PATH /usr/local/go/bin/go"
+    echo 'export GOROOT=/usr/local/go' | sudo tee -a /root/.bashrc;
+    echo 'export GOPATH=/root/.go' | sudo tee -a /root/.bashrc;
+    echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' | sudo tee -a /root/.bashrc;
 
-echo 'export GOROOT=/usr/local/go' | sudo tee -a /root/.bashrc;
-echo 'export GOPATH=/root/.go' | sudo tee -a /root/.bashrc;
-echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' | sudo tee -a /root/.bashrc;
-
-if [[ -d /home/$SUDOER ]]; then 
-    echo 'export GOROOT=/usr/local/go' | sudo tee -a /home/$SUDOER/.bashrc;
-    echo "export GOPATH=/home/${SUDOER}/.go" | sudo tee -a /home/$SUDOER/.bashrc;
-    echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' | sudo tee -a /home/$SUDOER/.bashrc;
-    sudo chown  ${SUDOER}:${SUDOER} /home/${SUDOER}/.bashrc
+    if [[ -d /home/$SUDOER ]]; then 
+        echo 'export GOROOT=/usr/local/go' | sudo tee -a /home/$SUDOER/.bashrc;
+        echo "export GOPATH=/home/${SUDOER}/.go" | sudo tee -a /home/$SUDOER/.bashrc;
+        echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' | sudo tee -a /home/$SUDOER/.bashrc;
+        sudo chown  ${SUDOER}:${SUDOER} /home/${SUDOER}/.bashrc
+    fi
+    echo "Setting up: Zaproxy";
+    sudo snap install zaproxy  --classic
+    echo "Installing: eyewitness + Aquatone Dependencies";
+    sudo apt-get install -y firefox chromium-browser xvfb
+else
+    echo "Performing Kali Specific setup..."
+    echo "Installing: eyewitness + Aquatone Dependencies";
+    sudo apt-get install -y golang zaproxy;
+    sudo apt-get install -y firefox-esr chromium xvfb;
+    GO="go"
 fi
+
 
 echo "Installing some python stuff and ruby stuff"
 
@@ -52,16 +66,10 @@ sudo apt-get install -y python3.7 python3.7-venv python3-dev python3-pip python-
 # pro gamer move, for xsstrike
 sudo -H pip3 install tld
 
-# Eyewitness + Aquatone Dependencies
-echo "Installing: eyewitness + Aquatone Dependencies";
-sudo apt-get install -y firefox chromium-browser xvfb || sudo apt-get install -y firefox-esr chromium xvfb;
-
 ## Discover Scripts Dependencies
 echo "Installing Discover Scripts dependencies";
 DEBIAN_FRONTEND=noninteractive sudo apt-get install -y dnsrecon libjpeg-dev zlib1g-dev python-pyftpdlib python3-pyftpdlib python-pil python3-lxml python-lxml python3-pil
 
-echo "Setting up: Zaproxy";
-sudo snap install zaproxy  --classic
 
 ## RECON 
 
@@ -410,6 +418,8 @@ fi
 
 if [ ! -d ${TOOL_DIR}/gitleaks ]; then 
     sudo git clone https://github.com/zricethezav/gitleaks.git ${TOOL_DIR}/gitleaks;
+    cd ${TOOL_DIR}/gitleaks
+
     sudo $GO get -u github.com/zricethezav/gitleaks;
     sudo $GO build
     sudo ln -s ${TOOL_DIR}/gitleaks/gitleaks /usr/local/bin/gitleaks;

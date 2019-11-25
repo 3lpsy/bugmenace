@@ -8,7 +8,7 @@ For Bug Hunting, you may wish to have a templated VM in the cloud for each proje
 
 ## In a VM
 
-I actually run a Kali VM that connects to the Bugmenace server. The provision.install.sh script should work for both operating systems such that you will have similar tools on both your VM (client) and BugMenace (server). You will need to copy the /etc/wireguard/peerprivkey from BugMenace if you wish to connect the local instance to the Wireguard service.
+I actually run a Kali VM that connects to the Bugmenace server via Wireguard. The provision.install.sh script should work for both operating systems such that you will have similar tools on both your VM (client) and BugMenace (server). You will need to copy the /etc/wireguard/peerprivkey from BugMenace if you wish to connect the local instance to the Wireguard service.
 
 ![Do you Want to Know More](./im-doing-my-part.png)
 

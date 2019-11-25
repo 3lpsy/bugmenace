@@ -4,7 +4,7 @@
     "vpc_id": "{{ env `PACKER_VPC_ID` }}",
     "subnet_id": "{{ env `PACKER_SUBNET_ID` }}",
     "name": "bugmenace",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "ssh_username": "ubuntu",
     "profile_name": "{{ env `PACKER_AWS_PROFILE_NAME` }}"
   },
