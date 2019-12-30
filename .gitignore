@@ -11,3 +11,4 @@ env.sh
 .env.sh
 *.pem
 *.pem.pub
+*.log
