@@ -1,6 +1,8 @@
 # Cache objects
 packer_cache/
+box/build/*.box
 
+local/output
 # For built boxes
 *.box
 env

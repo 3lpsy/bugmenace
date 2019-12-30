@@ -1,6 +1,5 @@
-#!/bin/bash
+#!/bin/sh -eux
 
-set -e;
 export DEBIAN_FRONTEND=noninteractive;
 
 DOCKER_COMPOSE_VERSION="1.24.1"

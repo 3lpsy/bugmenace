@@ -1,20 +1,30 @@
 {
   "variables": {
-    "region": "{{ env `PACKER_REGION` }}",
-    "vpc_id": "{{ env `PACKER_VPC_ID` }}",
-    "subnet_id": "{{ env `PACKER_SUBNET_ID` }}",
-    "name": "bugmenace",
-    "version": "0.0.2",
-    "ssh_username": "ubuntu",
-    "profile_name": "{{ env `PACKER_AWS_PROFILE_NAME` }}"
+    "aws_region": "{{ env `PACKER_REGION` }}",
+    "aws_vpc_id": "{{ env `PACKER_VPC_ID` }}",
+    "aws_subnet_id": "{{ env `PACKER_SUBNET_ID` }}",
+    "aws_name": "bugmenace",
+    "aws_ssh_username": "ubuntu",
+    "aws_profile_name": "{{ env `PACKER_AWS_PROFILE_NAME` }}",
+    "local_name": "bugmenace",
+    "local_iso_checksum_url": "https://cdimage.kali.org/kali-2019.4/SHA1SUMS",
+    "local_iso_checksum_type": "sha1",
+    "local_iso_url": "https://cdimage.kali.org/kali-2019.4/kali-linux-2019.4-light-amd64.iso",
+    "local_ssh_timeout": "10m",
+    "local_country": "US",
+    "local_headless": "true",
+    "local_format": "qcow2",
+    "local_output": "output",
+    "version": "0.0.3"
   },
   "builders": [
     {
+      "name": "aws",
       "type": "amazon-ebs",
-      "region": "{{user `region`}}",
-      "vpc_id": "{{user `vpc_id`}}",
-      "subnet_id": "{{user `subnet_id`}}",
-      "profile": "{{ user `profile_name` }}",
+      "region": "{{user `aws_region`}}",
+      "vpc_id": "{{user `aws_vpc_id`}}",
+      "subnet_id": "{{user `aws_subnet_id`}}",
+      "profile": "{{ user `aws_profile_name` }}",
       "associate_public_ip_address": true,
       "source_ami_filter": {
         "filters": {
@@ -27,45 +37,143 @@
       },
       "instance_type": "t2.medium",
       "ami_regions": "{{user `destination_regions`}}",
-      "ssh_username": "{{user `ssh_username` }}",
-      "name": "{{ user `name` }}-{{ user `version` }}",
-      "ami_name": "{{ user `name` }}-{{ user `version` }}",
+      "ssh_username": "{{user `aws_ssh_username` }}",
+      "ami_name": "{{ user `aws_name` }}-{{ user `version` }}",
       "force_deregister": "true",
       "force_delete_snapshot": "true"
+    },
+    {
+      "name": "qemu",
+      "type": "qemu",
+      "accelerator": "kvm",
+      "vm_name": "{{ user `local_name` }}-{{ user `version` }}.{{ user `local_format` }}",
+      "output_directory": "{{ user `local_output` }}",
+      "format": "{{ user `local_format` }}",
+      "iso_url": "{{user `local_iso_url`}}",
+      "iso_checksum_url": "{{user `local_iso_checksum_url`}}",
+      "iso_checksum_type": "{{user `local_iso_checksum_type`}}",
+      "ssh_username": "root",
+      "ssh_password": "vagrant",
+      "ssh_timeout": "{{ user `local_ssh_timeout` }}",
+      "http_directory": "http/qemu",
+      "boot_wait": "5s",
+      "boot_command": [
+        "<esc><wait>",
+        "install <wait>",
+        "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+        "debian-installer=en_US <wait>",
+        "auto <wait>",
+        "locale=en_US <wait>",
+        "kbd-chooser/method=us <wait>",
+        "netcfg/get_hostname={{ .Name }} <wait>",
+        "netcfg/get_domain=vagrantup.com <wait>",
+        "fb=false <wait>",
+        "debconf/frontend=noninteractive <wait>",
+        "console-setup/ask_detect=false <wait>",
+        "console-keymaps-at/keymap=us <wait>",
+        "keyboard-configuration/xkb-keymap=us <wait>",
+        "<enter><wait>"
+      ],
+      "qemuargs": [
+        ["-m", "8192m"],
+        ["--no-acpi", ""],
+        ["-smp", "8"],
+        ["-cpu", "host"]
+      ],
+      "disk_size": 24576
     }
   ],
   "provisioners": [
     {
+      "only": ["aws"],
       "type": "shell",
-      "inline": [
-        "sudo mkdir /tmp/provisioners",
-        "sudo chown {{user `ssh_username`}}:{{user `ssh_username`}} /tmp/provisioners"
-      ]
+      "scripts": ["scripts/aws/provision.basic.sh"]
     },
     {
-      "type": "file",
-      "destination": "/tmp/provisioners/",
-      "source": "./provisioners/"
+      "only": ["qemu"],
+      "type": "shell",
+      "scripts": ["scripts/local/provision.update.sh"]
+    },
+    {
+      "only": ["qemu"],
+      "type": "shell",
+      "scripts": ["scripts/local/qemu/provision.utils.sh"]
+    },
+    {
+      "only": ["qemu"],
+      "type": "shell",
+      "scripts": ["scripts/local/provision.sshd.sh"]
+    },
+    {
+      "only": ["qemu"],
+      "type": "shell",
+      "scripts": ["scripts/local/provision.vagrant.sh"]
     },
     {
       "type": "shell",
+      "scripts": ["scripts/common/provision.docker.sh"]
+    },
+    {
+      "type": "shell",
+      "scripts": ["scripts/common/provision.docker-compose.sh"]
+    },
+    {
+      "type": "shell",
+      "scripts": ["scripts/common/provision.wireguard-install.sh"]
+    },
+    {
+      "only": ["qemu"],
+      "type": "shell",
+      "scripts": ["scripts/common/provision.wireguard-client.sh"]
+    },
+    {
+      "only": ["qemu"],
+      "type": "shell",
+      "scripts": ["scripts/local/provision.gnome.sh"]
+    },
+    {
+      "only": ["aws"],
+      "type": "shell",
+      "scripts": ["scripts/common/provision.wireguard-server.sh"]
+    },
+    {
+      "type": "shell",
+      "scripts": ["scripts/common/provision.tools.sh"]
+    },
+    {
+      "type": "shell",
+      "scripts": ["scripts/common/provision.ps1.sh"]
+    },
+    {
+      "only": ["qemu"],
+      "type": "shell",
+      "scripts": ["scripts/local/provision.cleanup.sh"]
+    },
+    {
+      "only": ["qemu"],
+      "type": "shell",
+      "scripts": ["scripts/local/provision.minimize.sh"]
+    },
+    {
+      "only": ["aws"],
+      "type": "shell",
       "inline": [
-        "sudo bash /tmp/provisioners/provision.sh",
-        "sudo bash /tmp/provisioners/provision.docker.sh",
-        "sudo bash /tmp/provisioners/provision.docker-compose.sh",
-        "sudo bash /tmp/provisioners/provision.install.sh",
-        "sudo bash /tmp/provisioners/provision.wireguard.sh",
-
-        "sudo rm -rf /tmp/provisioners",
         "sudo rm -rf /tmp/*",
         "sudo apt-get -y autoremove --purge",
         "sudo apt-get -y clean",
         "sudo apt-get -y autoclean",
         "sudo dpkg --get-selections | grep -v deinstall",
         "sudo rm -f /root/.bash_history",
-        "sudo rm -f /home/{{ user `ssh_username` }}/.bash_history",
+        "sudo rm -f /home/{{ user `aws_ssh_username` }}/.bash_history",
         "sudo find /var/log -type f | while read f; do echo -ne '' | sudo tee \"${f}\"; done;"
       ]
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "output": "{{user `local_name`}}-{{user `version`}}-{{.Provider}}.box",
+      "only": ["qemu"]
     }
   ]
 }
