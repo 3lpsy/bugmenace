@@ -2,20 +2,9 @@
 
 set -e;
 
-INTERFACES=$(cat << EOF 
-# This file describes the network interfaces available on your system
-# and how to activate them. For more information, see interfaces(5).
-
-source /etc/network/interfaces.d/*
-
-# The loopback network interface
-auto lo
-iface lo inet loopback
-auto eth0
-iface eth0 inet dhcp
-
-
-EOF 
-)
-
-echo "$INTERFACES" | sudo tee /etc/network/interfaces
+# multline variables weren't working
+echo "source /etc/network/interfaces.d/*" | sudo tee /etc/network/interfaces
+echo "auto lo" | sudo tee -a /etc/network/interfaces
+echo "iface lo inet loopback" | sudo tee -a /etc/network/interfaces
+echo "auto eth0" | sudo tee -a /etc/network/interfaces
+echo "iface eth0 inet dhcp" | sudo tee -a /etc/network/interfaces

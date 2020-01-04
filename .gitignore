@@ -3,6 +3,8 @@ packer_cache/
 box/build/*.box
 ./packer
 local/output
+packer
+
 # For built boxes
 *.box
 env
