@@ -39,6 +39,9 @@ sudo chown -R vagrant:vagrant /home/vagrant/.profile;
 echo "Provisioning: Vagrant - Making /mnt/host Directory"
 sudo mkdir /mnt/host
 sudo chown vagrant:vagrant /mnt/host
+sudo usermod -aG sudo vagrant;
+
+echo "vagrant ALL=(ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers;
 
 echo "Provisioning: Vagrant - Disabling ssh password use"
 # Disable password based SSH for all users now that we have a key in place

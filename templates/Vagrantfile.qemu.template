@@ -1,9 +1,11 @@
 Vagrant.require_version ">= 1.6.2"
 
 Vagrant.configure("2") do |config|
-    config.ssh.username = "root"
+    config.ssh.username = "vagrant"
     config.ssh.shell = "bash"
+    config.vm.synced_folder '.', '/vagrant', disabled: true   
     config.vm.provider :libvirt do |domain|
+      domain.management_network_autostart = true
       domain.memory = 2048
       domain.cpus = 2
     end

@@ -16,10 +16,11 @@ function waitforfile() {
 echo "Provisioning: Updating - Starting"
 
 echo "Provisioning: Updating - Updating repo"
-apt-get update;
+sudo apt-get update;
+sudo apt-get update;
 
 echo "Provisioning: Updating - Upgrading packages"
-apt-get -y upgrade || waitforfile "/tmp/continuewithprovision"
+sudo apt-get -y upgrade || waitforfile "/tmp/continuewithprovision"
 
 
 #arch="`uname -r | sed 's/^.*[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}\(-[0-9]\{1,2\}\)-//'`"
@@ -33,7 +34,7 @@ apt-get -y upgrade || waitforfile "/tmp/continuewithprovision"
 # udevadm trigger --subsystem-match=net --action=add || true;
 
 echo "Provisioning: Updating - Installing build-essential and wget"
-apt-get -y install build-essential wget curl || waitforfile "/tmp/continuewithprovision2"
+sudo apt-get -y install build-essential wget curl || waitforfile "/tmp/continuewithprovision2"
 
 
 
@@ -48,7 +49,7 @@ apt-get -y install build-essential wget curl || waitforfile "/tmp/continuewithpr
 # dpkg --list | grep 'linux-headers' | awk '{ print $2 }' | sort -V | sed -n '/'"$(uname -r | sed "s/\([0-9.-]*\)-\([^0-9]\+\)/\1/")"'/q;p' | xargs apt-get -y purge || echo "Error Removin old kernel headers";
 
 echo "Provisioning: Updating - Updating packages"
-apt-get update;
+sudo apt-get update;
 
 # echo "Performing full dist upgrade";
 # apt-get -y dist-upgrade || echo "Fail on first dist-upgrade attempt";
@@ -63,7 +64,7 @@ apt-get update;
 # apt-get update;
 
 echo "Provisioning: Updating - Updating initramfs"
-update-initramfs -u || echo "[!] Error on update-initramfs -u"
+sudo update-initramfs -u || echo "[!] Error on update-initramfs -u"
 
 function trydistupgradeagaint() {
     echo "Provisioning: Updating - Trying bootleg dist upgrade workaround"
@@ -71,8 +72,13 @@ function trydistupgradeagaint() {
 }
 
 echo "Provisioning: Updating - Performing full dist upgrade for real"
-apt-get -y dist-upgrade || trydistupgradeagaint
+sudo apt-get -y dist-upgrade || trydistupgradeagaint
 
+
+# swap on lvm slows boot
+sudo sed -e 's/^RESUME=/#RESUME=/g' -i /etc/initramfs-tools/conf.d/resume
+echo "RESUME=/dev/mapper/bugmenace--0--vg-swap" | sudo tee -a /etc/initramfs-tools/conf.d/resume
+sudo update-initramfs -u || echo "[!] Error on update-initramfs -u"
 
 # echo "Installing plymouth and plymouth-label";
 # apt-get install -y plymouth plymouth-label || echo "Failed to install plymouth label" 

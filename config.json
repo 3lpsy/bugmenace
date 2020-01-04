@@ -97,6 +97,11 @@
     {
       "only": ["qemu"],
       "type": "shell",
+      "scripts": ["scripts/local/provision.networking.sh"]
+    },
+    {
+      "only": ["qemu"],
+      "type": "shell",
       "scripts": ["scripts/local/qemu/provision.utils.sh"]
     },
     {
@@ -141,6 +146,11 @@
       "scripts": ["scripts/common/provision.tools.sh"]
     },
     {
+      "only": ["qemu"],
+      "type": "shell",
+      "scripts": ["scripts/local/provision.gnome-post.sh"]
+    },
+    {
       "type": "shell",
       "scripts": ["scripts/common/provision.ps1.sh"]
     },
@@ -173,7 +183,8 @@
     {
       "type": "vagrant",
       "output": "{{user `local_name`}}-{{user `version`}}-{{.Provider}}.box",
-      "only": ["qemu"]
+      "only": ["qemu"],
+      "vagrantfile_template": "templates/Vagrantfile.qemu.template"
     }
   ]
 }

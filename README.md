@@ -2,6 +2,8 @@
 
 This project contains two packer builds (targeting AWS and libvirt/qemu) for a Bug Bounty enumeration and attack server. You can build either for the cloud, locally, or both. It's basically just ubuntu/kali light + some osint tools.
 
+**Note: Packer v1.4.5 may be required to build the local version. v.1.5.1 may cause failures with the libvirt post-processor**
+
 ## Purpose
 
 For Bug Hunting, you may wish to have a templated VM in the cloud for each project. Installing tools can take time and may lead to multiple VMs with different states. To avoid this, you can use Hashicorp's Packer to build a template which can be spun up on demand. This project contains a Packer Build for AWS.
