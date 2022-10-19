@@ -2,7 +2,7 @@
 
 export DEBIAN_FRONTEND=noninteractive;
 
-DOCKER_COMPOSE_VERSION="1.24.1"
+DOCKER_COMPOSE_VERSION="2.12.0"
 echo "Provisioning: Docker Compose - Start"
 
 echo "Provisioning: Docker Compose - Downloading Docker Compose"

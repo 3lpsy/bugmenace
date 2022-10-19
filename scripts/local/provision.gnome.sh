@@ -18,7 +18,7 @@ echo "Purging lightdm just in case"
 sudo DEBIAN_FRONTEND=noninteractive apt-get purge -y lightdm || echo "Issue with: apt-get purge -y lightdm ";
 sudo DEBIAN_FRONTEND=noninteractive apt-get purge -y lightdm || echo "Issue with: apt-get purge -y lightdm ";
 
-echo "Purging gdm3 just in case"\
+echo "Purging gdm3 just in case"
 sudo DEBIAN_FRONTEND=noninteractive apt-get purge -y gdm3 || echo "Issue with: apt-get purge -y gdm3";
 
 echo "Setting gdm3 as default display manager pre-answer"
@@ -28,7 +28,7 @@ echo "Installing gdm3"
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y gdm3;
 
 echo "Installing gnome";
-DEBIAN_FRONTEND=noninteractive apt-get install -y gnome-core kali-defaults kali-root-login desktop-base xinit;
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y gnome-core kali-defaults kali-root-login desktop-base xinit;
 
 echo "Purging lightdm just in case 2"
 sudo DEBIAN_FRONTEND=noninteractive apt-get purge -y lightdm || echo "Issue with: apt-get purge -y lightdm ";

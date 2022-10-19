@@ -23,7 +23,7 @@ echo "Starting Custom installs";
 # Put apps here to be installed
 
 echo "Installing some programs"
-sudo apt-get install -y git unzip p7zip-full vim masscan mlocate tmux masscan nikto whois nmap jq wfuzz sqlmap cewl awscli dnsutils;
+sudo apt-get install -y masscan nikto whois wfuzz sqlmap cewl;
 
 
 if [ -n "$(uname -a | grep -i ubuntu)" ]; then 
@@ -67,7 +67,7 @@ fi
 
 echo "Installing some python stuff and ruby stuff"
 
-sudo apt-get install -y python3.7 python3.7-venv python3-dev python3-pip python-pip python3-venv python3-fuzzywuzzy python-fuzzywuzzy python-requests python3-requests python3-urllib3 python-urllib3 python-whois python3-whois python-texttable python3-texttable python-dnspython python3-dnspython ruby-dev;
+sudo apt-get install -y python3-fuzzywuzzy python-fuzzywuzzy python-requests python3-requests python3-urllib3 python-urllib3 python-whois python3-whois python-texttable python3-texttable python-dnspython python3-dnspython ruby-dev;
 
 # pro gamer move, for xsstrike
 sudo -H pip3 install tld
@@ -75,7 +75,6 @@ sudo -H pip3 install tld
 ## Discover Scripts Dependencies
 echo "Installing Discover Scripts dependencies";
 DEBIAN_FRONTEND=noninteractive sudo apt-get install -y dnsrecon libjpeg-dev zlib1g-dev python-pil python3-lxml python-lxml python3-pil
-
 
 ## RECON 
 

@@ -1,5 +1,7 @@
 # Bug Menace: A Bug Bounty Packer Build
 
+Note: As this project has aged, I am mostly just using it for a semi-custom kali vagrant box with libvirt. For this purpose it works (as of this edit), but I've omitted to custom tool provisioning. 
+
 This project contains two packer builds (targeting AWS and libvirt/qemu) for a Bug Bounty enumeration and attack server. You can build either for the cloud, locally, or both. It's basically just ubuntu/kali light + some osint tools.
 
 **Note: Packer v1.4.5 may be required to build the local version. v.1.5.1 may cause failures with the libvirt post-processor**

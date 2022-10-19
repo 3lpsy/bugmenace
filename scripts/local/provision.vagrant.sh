@@ -19,15 +19,17 @@ sudo chmod 600 $HOME_DIR/.ssh/authorized_keys
 # chown -R vagrant $HOME_DIR/.ssh;
 # chmod -R go-rwsx $HOME_DIR/.ssh;
 
-echo "Provisioning: Vagrant - Creating Vagrant User"
+#echo "Provisioning: Vagrant - Creating Vagrant User"
 
-sudo useradd -m -s /bin/bash -u 1000 vagrant;
+# created in preseed
+# sudo useradd -m -s /bin/bash -u 1000 vagrant;
 
 echo "Provisioning: Vagrant - Changing Vagrant Group ID"
 sudo groupmod -g 1001 vagrant;
 
 echo "Provisioning: Vagrant - Setting insecure password for vagrant user"
-echo 'vagrant:vagrant' | chpasswd;
+# done in preseed
+#echo 'vagrant:vagrant' | chpasswd;
 
 echo "Provisioning: Vagrant - Copying root ssh directory for vagrant user"
 sudo cp -R /root/.ssh /home/vagrant/.ssh;
@@ -37,19 +39,21 @@ sudo cp /root/.profile /home/vagrant/;
 sudo chown -R vagrant:vagrant /home/vagrant/.profile;
 
 echo "Provisioning: Vagrant - Making /mnt/host Directory"
-sudo mkdir /mnt/host
+sudo mkdir -p /mnt/host
 sudo chown vagrant:vagrant /mnt/host
 sudo usermod -aG sudo vagrant;
 
-echo "vagrant ALL=(ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers;
+# done in preseed
+#echo "vagrant ALL=(ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers;
 
 echo "Provisioning: Vagrant - Disabling ssh password use"
 # Disable password based SSH for all users now that we have a key in place
+# TODO: need to disble root root login
 if $(grep -q '^PasswordAuthentication yes' /etc/ssh/sshd_config)
 then
-    sed -i -e 's/PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
+    sudo sed -i -e 's/PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
 else
-    echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config
+    echo 'PasswordAuthentication no' | sudo tee -a /etc/ssh/sshd_config
 fi
 
 echo "Disabling ssh password use complete";

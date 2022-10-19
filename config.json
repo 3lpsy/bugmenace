@@ -1,62 +1,33 @@
 {
-  "variables": {
-    "aws_region": "{{ env `PACKER_REGION` }}",
-    "aws_vpc_id": "{{ env `PACKER_VPC_ID` }}",
-    "aws_subnet_id": "{{ env `PACKER_SUBNET_ID` }}",
-    "aws_name": "bugmenace",
-    "aws_ssh_username": "ubuntu",
-    "aws_profile_name": "{{ env `PACKER_AWS_PROFILE_NAME` }}",
-    "local_name": "bugmenace",
-    "local_iso_checksum_url": "https://cdimage.kali.org/kali-2019.4/SHA1SUMS",
-    "local_iso_checksum_type": "sha1",
-    "local_iso_url": "https://cdimage.kali.org/kali-2019.4/kali-linux-2019.4-light-amd64.iso",
-    "local_ssh_timeout": "10m",
-    "local_country": "US",
-    "local_headless": "true",
-    "local_format": "qcow2",
-    "local_output": "output",
-    "version": "0.0.3"
-  },
   "builders": [
     {
-      "name": "aws",
-      "type": "amazon-ebs",
-      "region": "{{user `aws_region`}}",
-      "vpc_id": "{{user `aws_vpc_id`}}",
-      "subnet_id": "{{user `aws_subnet_id`}}",
-      "profile": "{{ user `aws_profile_name` }}",
+      "ami_name": "{{ user `aws_name` }}-{{ user `version` }}",
+      "ami_regions": "{{user `destination_regions`}}",
       "associate_public_ip_address": true,
+      "force_delete_snapshot": "true",
+      "force_deregister": "true",
+      "instance_type": "t2.medium",
+      "name": "aws",
+      "profile": "{{ user `aws_profile_name` }}",
+      "region": "{{user `aws_region`}}",
       "source_ami_filter": {
         "filters": {
-          "virtualization-type": "hvm",
           "name": "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*",
-          "root-device-type": "ebs"
+          "root-device-type": "ebs",
+          "virtualization-type": "hvm"
         },
-        "owners": ["099720109477"],
-        "most_recent": true
+        "most_recent": true,
+        "owners": [
+          "099720109477"
+        ]
       },
-      "instance_type": "t2.medium",
-      "ami_regions": "{{user `destination_regions`}}",
       "ssh_username": "{{user `aws_ssh_username` }}",
-      "ami_name": "{{ user `aws_name` }}-{{ user `version` }}",
-      "force_deregister": "true",
-      "force_delete_snapshot": "true"
+      "subnet_id": "{{user `aws_subnet_id`}}",
+      "type": "amazon-ebs",
+      "vpc_id": "{{user `aws_vpc_id`}}"
     },
     {
-      "name": "qemu",
-      "type": "qemu",
       "accelerator": "kvm",
-      "vm_name": "{{ user `local_name` }}-{{ user `version` }}.{{ user `local_format` }}",
-      "output_directory": "{{ user `local_output` }}",
-      "format": "{{ user `local_format` }}",
-      "iso_url": "{{user `local_iso_url`}}",
-      "iso_checksum_url": "{{user `local_iso_checksum_url`}}",
-      "iso_checksum_type": "{{user `local_iso_checksum_type`}}",
-      "ssh_username": "root",
-      "ssh_password": "vagrant",
-      "ssh_timeout": "{{ user `local_ssh_timeout` }}",
-      "http_directory": "http/qemu",
-      "boot_wait": "5s",
       "boot_command": [
         "<esc><wait>",
         "install <wait>",
@@ -74,99 +45,189 @@
         "keyboard-configuration/xkb-keymap=us <wait>",
         "<enter><wait>"
       ],
+      "boot_wait": "5s",
+      "disk_size": "24576M",
+      "format": "{{ user `local_format` }}",
+      "http_directory": "http/qemu",
+      "iso_checksum": "file:{{user `local_iso_checksum_url`}}",
+      "iso_url": "{{user `local_iso_url`}}",
+      "name": "qemu",
+      "output_directory": "{{ user `local_output` }}",
       "qemuargs": [
-        ["-m", "8192m"],
-        ["--no-acpi", ""],
-        ["-smp", "8"],
-        ["-cpu", "host"]
+        [
+          "-m",
+          "8192m"
+        ],
+        [
+          "--no-acpi",
+          ""
+        ],
+        [
+          "-smp",
+          "8"
+        ],
+        [
+          "-cpu",
+          "host"
+        ]
       ],
-      "disk_size": 24576
+      "ssh_password": "vagrant",
+      "ssh_timeout": "{{ user `local_ssh_timeout` }}",
+      "ssh_username": "vagrant",
+      "type": "qemu",
+      "vm_name": "{{ user `local_name` }}-{{ user `version` }}.{{ user `local_format` }}"
+    }
+  ],
+  "post-processors": [
+    {
+      "only": [
+        "qemu"
+      ],
+      "output": "{{user `local_name`}}-{{user `version`}}-{{.Provider}}.box",
+      "type": "vagrant",
+      "vagrantfile_template": "templates/Vagrantfile.qemu.template"
     }
   ],
   "provisioners": [
     {
-      "only": ["aws"],
-      "type": "shell",
-      "scripts": ["scripts/aws/provision.basic.sh"]
+      "only": [
+        "aws"
+      ],
+      "scripts": [
+        "scripts/aws/provision.basic.sh"
+      ],
+      "type": "shell"
     },
     {
-      "only": ["qemu"],
-      "type": "shell",
-      "scripts": ["scripts/local/provision.update.sh"]
+      "only": [
+        "qemu"
+      ],
+      "scripts": [
+        "scripts/local/provision.update.sh"
+      ],
+      "type": "shell"
     },
     {
-      "only": ["qemu"],
-      "type": "shell",
-      "scripts": ["scripts/local/provision.networking.sh"]
+      "only": [
+        "qemu"
+      ],
+      "scripts": [
+        "scripts/local/provision.networking.sh"
+      ],
+      "type": "shell"
     },
     {
-      "only": ["qemu"],
-      "type": "shell",
-      "scripts": ["scripts/local/qemu/provision.utils.sh"]
+      "only": [
+        "qemu"
+      ],
+      "scripts": [
+        "scripts/local/qemu/provision.utils.sh"
+      ],
+      "type": "shell"
     },
     {
-      "only": ["qemu"],
-      "type": "shell",
-      "scripts": ["scripts/local/provision.sshd.sh"]
+      "only": [
+        "qemu"
+      ],
+      "scripts": [
+        "scripts/local/provision.sshd.sh"
+      ],
+      "type": "shell"
     },
     {
-      "only": ["qemu"],
-      "type": "shell",
-      "scripts": ["scripts/local/provision.vagrant.sh"]
+      "only": [
+        "qemu"
+      ],
+      "scripts": [
+        "scripts/local/provision.vagrant.sh"
+      ],
+      "type": "shell"
     },
     {
-      "type": "shell",
-      "scripts": ["scripts/common/provision.docker.sh"]
+      "scripts": [
+        "scripts/common/provision.docker.sh"
+      ],
+      "type": "shell"
     },
     {
-      "type": "shell",
-      "scripts": ["scripts/common/provision.docker-compose.sh"]
+      "scripts": [
+        "scripts/common/provision.docker-compose.sh"
+      ],
+      "type": "shell"
     },
     {
-      "type": "shell",
-      "scripts": ["scripts/common/provision.wireguard-install.sh"]
+      "scripts": [
+        "scripts/common/provision.wireguard-install.sh"
+      ],
+      "type": "shell"
     },
     {
-      "only": ["qemu"],
-      "type": "shell",
-      "scripts": ["scripts/common/provision.wireguard-client.sh"]
+      "only": [
+        "qemu"
+      ],
+      "scripts": [
+        "scripts/common/provision.wireguard-client.sh"
+      ],
+      "type": "shell"
     },
     {
-      "only": ["qemu"],
-      "type": "shell",
-      "scripts": ["scripts/local/provision.gnome.sh"]
+      "only": [
+        "qemu"
+      ],
+      "scripts": [
+        "scripts/local/provision.gnome.sh"
+      ],
+      "type": "shell"
     },
     {
-      "only": ["aws"],
-      "type": "shell",
-      "scripts": ["scripts/common/provision.wireguard-server.sh"]
+      "only": [
+        "aws"
+      ],
+      "scripts": [
+        "scripts/common/provision.wireguard-server.sh"
+      ],
+      "type": "shell"
     },
     {
-      "type": "shell",
-      "scripts": ["scripts/common/provision.tools.sh"]
+      "scripts": [
+        "scripts/common/provision.tools-basic.sh"
+      ],
+      "type": "shell"
     },
     {
-      "only": ["qemu"],
-      "type": "shell",
-      "scripts": ["scripts/local/provision.gnome-post.sh"]
+      "only": [
+        "qemu"
+      ],
+      "scripts": [
+        "scripts/local/provision.gnome-post.sh"
+      ],
+      "type": "shell"
     },
     {
-      "type": "shell",
-      "scripts": ["scripts/common/provision.ps1.sh"]
+      "scripts": [
+        "scripts/common/provision.ps1.sh"
+      ],
+      "type": "shell"
     },
     {
-      "only": ["qemu"],
-      "type": "shell",
-      "scripts": ["scripts/local/provision.cleanup.sh"]
+      "only": [
+        "qemu"
+      ],
+      "scripts": [
+        "scripts/local/provision.cleanup.sh"
+      ],
+      "type": "shell"
     },
     {
-      "only": ["qemu"],
-      "type": "shell",
-      "scripts": ["scripts/local/provision.minimize.sh"]
+      "only": [
+        "qemu"
+      ],
+      "scripts": [
+        "scripts/local/provision.minimize.sh"
+      ],
+      "type": "shell"
     },
     {
-      "only": ["aws"],
-      "type": "shell",
       "inline": [
         "sudo rm -rf /tmp/*",
         "sudo apt-get -y autoremove --purge",
@@ -176,15 +237,30 @@
         "sudo rm -f /root/.bash_history",
         "sudo rm -f /home/{{ user `aws_ssh_username` }}/.bash_history",
         "sudo find /var/log -type f | while read f; do echo -ne '' | sudo tee \"${f}\"; done;"
-      ]
+      ],
+      "only": [
+        "aws"
+      ],
+      "type": "shell"
     }
   ],
-  "post-processors": [
-    {
-      "type": "vagrant",
-      "output": "{{user `local_name`}}-{{user `version`}}-{{.Provider}}.box",
-      "only": ["qemu"],
-      "vagrantfile_template": "templates/Vagrantfile.qemu.template"
-    }
-  ]
+  "variables": {
+    "aws_name": "bugmenace",
+    "aws_profile_name": "{{ env `PACKER_AWS_PROFILE_NAME` }}",
+    "aws_region": "{{ env `PACKER_REGION` }}",
+    "aws_ssh_username": "ubuntu",
+    "aws_subnet_id": "{{ env `PACKER_SUBNET_ID` }}",
+    "aws_vpc_id": "{{ env `PACKER_VPC_ID` }}",
+    "local_country": "US",
+    "local_format": "qcow2",
+    "local_headless": "true",
+    "local_iso_checksum_type": "sha1",
+    "local_iso_checksum_url": "https://mirror.cspacehostings.com/kali-images/kali-2022.3/SHA1SUMS",
+    "local_iso_url": "https://cdimage.kali.org/kali-2022.3/kali-linux-2022.3-installer-amd64.iso",
+    "local_name": "bugmenace",
+    "local_output": "output",
+    "local_ssh_timeout": "10m",
+    "version": "0.0.4"
+  }
 }
+
